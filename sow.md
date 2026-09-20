@@ -1,9 +1,9 @@
 # CS 457 Project Statement of Work (SOW) & Protocol Specification Template
 
-**Student Name:** [Your Full Name]  
-**Date:** [YYYY-MM-DD]  
+**Student Name:** Dacovney Brochu 
+**Date:** [2026-09-20]  
 **Course:** CS 457 - Computer Networks  
-**Target Server Domain:** `server.[yourlastname].edu`  
+**Target Server Domain:** `server.brochu.edu`  
 
 ---
 
@@ -17,14 +17,14 @@
 > - You are encouraged to use python, but I'm not going to make it a strict requirement. The instructor and TA's ability to help with C or Rust, etc will be diminished in other languages.
 
 ### 1.1 Game Overview
-- **Chosen Game:** [e.g., Terminal Trivia, Tic-Tac-Toe, Connect Four, Battleship]
+- **Chosen Game:** Blackjack
 - **Player Capacity:** 2 Players (Simulated via 2 CML Client nodes)
-- **Game Summary:** [Briefly describe the gameplay mechanics and rules]
+- **Game Summary:** The game will use a two-player, console-based version of Blackjack, with both players going against a dealer for a server. Each round, the server will deal cards to itself and players, and the players must decide to hit or stand. The server will keep track of the main deck, player hands, the dealer's hand, the order of turns, and the score. After player turns, preset rules will be followed for determining the result of the round.
 
 ### 1.2 Core Game Rules & Win/Draw Conditions
-- **Turn Mechanics:** [Explain how turn order is enforced between Player 1 and Player 2]
-- **Victory Condition:** [Define how a player wins the game]
-- **Draw/Tie Condition:** [Define how a draw/tie is detected and handled]
+- **Turn Mechanics:** The server will assign a Player 1 and Player 2. Each round, the server will deal two cards for each player and then two for itself. The player's turn will have them choose to Hit or Stand. If they exceed 21, it's a bust and they lose. Once both players have finished their turn, the server takes the Dealer's turn.
+- **Victory Condition:** A player wins the round if their hand is closer to 21 than the dealer's hand without exceeding 21, or if the dealer busts and the player hasn't. The ultimate win condition stands if the player gets 21 with its original two cards equaling 21.
+- **Draw/Tie Condition:** There is a chance of a draw if the player's final hand is the same as the dealer even if they both have Blackjack. A Bust does not have a chance of a draw anymore. A draw ends the round without any money gained or lost.
 
 ---
 
@@ -52,8 +52,7 @@
   "msg_type": "MOVE",
   "player_id": "Player_1",
   "payload": {
-    "row": 0,
-    "col": 2
+    "action": "HIT"
   },
   "timestamp": 1727000000
 }
@@ -62,19 +61,19 @@
 ---
 
 ### 2.3 Game State Machine (FSM) Design (Sprint 1 Deliverable)
-- **State Transitions:** Detail state flow: `INIT` -> `WAITING_FOR_PLAYERS` -> `PLAYER_TURN` -> `EVALUATE_MOVE` -> `CHECK_WIN_DRAW` -> `GAME_OVER` -> `CLEANUP`.
+- **State Transitions:** Detail state flow: `INIT` -> `WAITING_FOR_PLAYERS` -> `DEALING` -> `PLAYER_1_TURN` -> `PLAYER_2_TURN` -> `DEALER_TURN` -> `EVALUATE RESULTS` -> `GAME_OVER` -> `CLEANUP`.
 
 ---
 
 ## 3. Game Behavior & Server Concurrency Architecture (Sprint 2 Deliverable)
 
 ### 3.1 Server Concurrency Strategy
-- **Architecture Choice:** [Multi-Threading (`threading.Thread`) OR Non-blocking I/O multiplexing (`select.select` / `selectors`)]
-- **Synchronization Logic:** Explain how shared game state and client list are thread-safe (e.g. `threading.Lock`) to prevent race conditions during turn processing.
+- **Architecture Choice:** Multi-Threading (`threading.Thread`)
+- **Synchronization Logic:** The server will use a separate thread for communication with each client. The shared game state, which has the deck, player hands, scores, and current turn, will be protected with threading.Lock to keep clients from modifying the game incorrectly through simultaneous actions.
 
 ### 3.2 State & Score Synchronization Across Clients
-- **Turn Enforcement:** Detail how the server validates active player ID before processing moves and broadcasts updated turn notifications to all clients.
-- **Score & Board Synchronization:** Describe how state broadcasts keep client screens synchronized in real time.
+- **Turn Enforcement:** The server will maintain the player IDs and only ensure MOVE messages are coming from the active player, while out-of-turn actions get an ERROR message.
+- **Score & Board Synchronization:** The server will maintain an authoritative game state and send STATE_UPDATE messages to clients whenever a player's actions change the state. Each round will end with the server sending the final hands, results, and updated score to both clients.
 
 ---
 
