@@ -1,5 +1,5 @@
 # AI Prompting and Constraints
-AI can implement the design, but it can not change the design.
+> AI can implement the design, but it can not change the design.
 
 ## Purpose
 - AI assists with implementation of the already-designed protocol.
@@ -8,7 +8,7 @@ AI can implement the design, but it can not change the design.
 - Human reviews generated code before it becomes part of the project.
 
 ## Protocol Source of Truth
-- protocol_blueprint.md is authoritative. If an AI's assumptions conflict with it, the Markdown specification wins. The AI should ask for clarification rather than silently changing the protocol.
+protocol_blueprint.md is authoritative. If an AI's assumptions conflict with it, the Markdown specification wins. The AI should ask for clarification rather than silently changing the protocol.
 
 ## Prompt: Serialization / Framing
 Prompts must include:
