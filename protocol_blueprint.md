@@ -97,7 +97,8 @@ This ensures that the application can correctly handle TCP fragmentation and mes
 ```
 
 - **MOVE**
-HIT
+
+*HIT*
 ```
 {
     "msg_type": "MOVE",
@@ -105,7 +106,7 @@ HIT
     "action": "HIT"
 }
 ```
-STAND
+*STAND*
 ```
 {
     "msg_type": "MOVE",
