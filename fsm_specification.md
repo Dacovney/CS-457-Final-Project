@@ -18,20 +18,20 @@
 
 ## Valid Transitions
 1. WAITING_FOR_PLAYERS
-- -> STARTING_GAME
+    - -> STARTING_GAME
 2. STARTING_GAME
-- -> PLAYER_1_TURN
+    - -> PLAYER_1_TURN
 3. PLAYER_1_TURN
-- PLAYER_1_TURN     (HIT)
-- PLAYER_2_TURN     (STAND or BUST)
+    - -> PLAYER_1_TURN     (HIT)
+    - -> PLAYER_2_TURN     (STAND or BUST)
 4. PLAYER_2_TURN
-- PLAYER_2_TURN     (HIT)
-- DEALER_TURN       (STAND or BUST)
+    - -> PLAYER_2_TURN     (HIT)
+    - -> DEALER_TURN       (STAND or BUST)
 5. DEALER_TURN
-- ROUND_COMPLETE
+    - -> ROUND_COMPLETE
 6. ROUND_COMPLETE
-- STARTING_GAME     (both players meet minimum bet)
-- GAME_OVER         (game session ends)
+    - -> STARTING_GAME     (both players meet minimum bet)
+    - -> GAME_OVER         (game session ends)
 
 ## Player Guided Transitions
 - **PLACE BET:** Player submits a valid bet before the round begins
@@ -58,29 +58,33 @@
 - **Round Complete:** The server determines each player's result, resolves their bets, and updates their bankrolls. If both players have enough money to meet the minimum bet for another round, the server begins a new round. If either player cannot meet the minimum bet, the game ends and the player is declared bankrupt/losing player.
 
 ## Mermaid Diagram
+# Mermaid Diagram
+
+```mermaid
 stateDiagram-v2
     [*] --> WAITING_FOR_PLAYERS
 
     WAITING_FOR_PLAYERS --> STARTING_GAME : Both players connected
+    WAITING_FOR_PLAYERS --> WAITING_FOR_PLAYERS : Player disconnects
 
-    STARTING_GAME --> PLAYER_1_TURN : Bets validated and initial cards dealt
+    STARTING_GAME --> PLAYER_1_TURN : Bets accepted and cards dealt
+    STARTING_GAME --> GAME_OVER : Player disconnects
 
     PLAYER_1_TURN --> PLAYER_1_TURN : HIT
     PLAYER_1_TURN --> PLAYER_2_TURN : STAND
     PLAYER_1_TURN --> PLAYER_2_TURN : BUST
+    PLAYER_1_TURN --> GAME_OVER : Player disconnects
 
     PLAYER_2_TURN --> PLAYER_2_TURN : HIT
     PLAYER_2_TURN --> DEALER_TURN : STAND
     PLAYER_2_TURN --> DEALER_TURN : BUST
+    PLAYER_2_TURN --> GAME_OVER : Player disconnects
 
     DEALER_TURN --> ROUND_COMPLETE : Dealer resolves hand
+    DEALER_TURN --> GAME_OVER : Player disconnects
 
-    ROUND_COMPLETE --> STARTING_GAME : Both players can meet minimum bet
+    ROUND_COMPLETE --> STARTING_GAME : Both can meet minimum bet
     ROUND_COMPLETE --> GAME_OVER : Player cannot meet minimum bet
 
-    WAITING_FOR_PLAYERS --> GAME_OVER : Disconnect / Forfeit
-    PLAYER_1_TURN --> GAME_OVER : Disconnect / Forfeit
-    PLAYER_2_TURN --> GAME_OVER : Disconnect / Forfeit
-    DEALER_TURN --> GAME_OVER : Disconnect / Forfeit
-
     GAME_OVER --> [*]
+```
