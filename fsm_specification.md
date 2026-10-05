@@ -58,7 +58,6 @@
 - **Round Complete:** The server determines each player's result, resolves their bets, and updates their bankrolls. If both players have enough money to meet the minimum bet for another round, the server begins a new round. If either player cannot meet the minimum bet, the game ends and the player is declared bankrupt/losing player.
 
 ## Mermaid Diagram
-# Mermaid Diagram
 
 ```mermaid
 stateDiagram-v2
