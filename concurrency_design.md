@@ -52,22 +52,23 @@ sequenceDiagram
     actor P2 as Player 2
 
     P1->>W1: Send MOVE request
+    Note over W1: Read complete length-prefixed JSON
     W1->>G: Submit action
-    Note over G: Acquire game-state lock
-    G->>G: Validate turn and FSM phase
+    G->>G: Acquire game-state lock
+    G->>G: Validate client, FSM phase, turn and action
 
     alt Valid action
-        G->>G: Update game state
-        G->>G: Create state snapshot
-        Note over G: Release lock
-        G->>B: Queue ordered update
-        B-->>W1: Deliver update
-        B-->>W2: Deliver update
-        W1-->>P1: STATE_UPDATE
-        W2-->>P2: STATE_UPDATE
+        G->>G: Apply action atomically
+        G->>G: Create immutable state snapshot
+        G->>G: Release game-state lock
+        G->>B: Queue committed update in order
+        B->>W1: Enqueue STATE_UPDATE
+        B->>W2: Enqueue STATE_UPDATE
+        W1-->>P1: Send STATE_UPDATE
+        W2-->>P2: Send STATE_UPDATE
     else Invalid action
-        Note over G: Release lock
+        G->>G: Release game-state lock
         G-->>W1: Reject action
-        W1-->>P1: ERROR
+        W1-->>P1: Send ERROR
     end
 ```
